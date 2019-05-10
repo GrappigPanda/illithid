@@ -31,7 +31,8 @@ defmodule Illithid.Timers.ExcessRuntime do
   ################
 
   def handle_info(:kill_excess, state) do
-    Enum.map(find_excess_servers(), &terminate_worker/1)
+    for server <- find_excess_servers(), do: terminate_worker(server)
+
     {:noreply, state}
   end
 

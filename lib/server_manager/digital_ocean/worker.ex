@@ -1,4 +1,5 @@
 defmodule Illithid.ServerManager.DigitalOcean.Worker do
+  @moduledoc false
   @behaviour Illithid.ServerManager.WorkerBehaviour
 
   use GenServer, restart: :transient

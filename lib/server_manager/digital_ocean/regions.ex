@@ -1,4 +1,5 @@
 defmodule Illithid.ServerManager.DigitalOcean.Regions do
+  @moduledoc false
   @behaviour Illithid.ServerManager.RegionBehaviour
 
   #####################

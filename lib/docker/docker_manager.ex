@@ -37,7 +37,8 @@ defmodule Illithid.Docker do
         "/" <> container_name
       end
 
-    list_containers(server_ip)
+    server_ip
+    |> list_containers()
     |> case do
       {:ok, containers} -> containers
       _ -> []
@@ -248,11 +249,7 @@ defmodule Illithid.Docker do
                [{"Content-Type", "application/json"}]
              ) do
           {:ok, %HTTPoison.Response{body: body}} ->
-            output =
-              body
-              |> String.codepoints()
-              |> Enum.filter(fn x -> String.printable?(x) end)
-              |> Enum.join()
+            output = parse_exec_output(body)
 
             {:ok, output}
 
@@ -270,5 +267,13 @@ defmodule Illithid.Docker do
   @spec server_url(String.t(), String.t(), String.t()) :: String.t()
   defp server_url(server_ip, scheme \\ "http", port \\ "2375") do
     "#{scheme}://#{server_ip}:#{port}"
+  end
+
+  @spec parse_exec_output(exec_output :: String.t()) :: String.t()
+  defp parse_exec_output(exec_output) when is_binary(exec_output) do
+    exec_output
+    |> String.codepoints()
+    |> Enum.filter(fn x -> String.printable?(x) end)
+    |> Enum.join()
   end
 end

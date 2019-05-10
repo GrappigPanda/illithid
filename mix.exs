@@ -19,6 +19,12 @@ defmodule Illithid.MixProject do
   end
 
   defp deps do
-    [{:httpoison, "~> 1.5"}, {:timex, "~> 3.1"}, {:jason, "~> 1.1"}]
+    [
+      {:httpoison, "~> 1.5"},
+      {:timex, "~> 3.1"},
+      {:jason, "~> 1.1"},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false}
+    ]
   end
 end

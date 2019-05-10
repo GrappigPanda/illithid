@@ -1,4 +1,5 @@
 defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
+  @moduledoc false
   @behaviour Illithid.ServerManager.ServerHostBehaviour
 
   use DynamicSupervisor

@@ -30,7 +30,7 @@ defmodule Illithid.Timers.Orphans do
   ################
 
   def handle_info(:kill_orphans, state) do
-    Enum.map(find_orphaned_servers(), &kill_orphan/1)
+    for server <- find_orphaned_servers(), do: kill_orphan(server)
     {:noreply, state}
   end
 
