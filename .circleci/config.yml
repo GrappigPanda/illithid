@@ -8,6 +8,7 @@ jobs:
 
     steps:
       - checkout
+      - mix local.hex --force
 
       - restore_cache:
           keys:
