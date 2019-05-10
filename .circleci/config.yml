@@ -1,6 +1,11 @@
 version: 2
 jobs:
   build:
+    docker:
+      - image: circleci/elixir:1.8
+        environment:
+          MIX_ENV: test
+
     steps:
       - checkout
 
