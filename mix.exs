@@ -27,7 +27,7 @@ defmodule Illithid.MixProject do
       {:timex, "~> 3.1"},
       {:jason, "~> 1.1"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false}
     ]
   end
 end
