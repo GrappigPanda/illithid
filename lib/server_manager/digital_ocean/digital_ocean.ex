@@ -88,8 +88,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   @spec count_children() :: number
   def count_children do
     __MODULE__
-
-    DynamicSupervisor.count_children(__MODULE__)
+    |> DynamicSupervisor.count_children()
     |> Map.get(:workers)
   end
 
