@@ -20,7 +20,15 @@ jobs:
           keys:
             - v1-build-cache-{{ .Branch }}
             - v1-build-cache
+      - restore_cache:
+          keys:
+            - v1-plt-cache-{{ checksum ".tool-versions" }}
+
       - run: mix do deps.get --only test, compile
+      - run: mix test
+      - run: mix credo
+      - run: mix dialyzer --halt-exit-status
+
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths: "deps"
@@ -30,11 +38,15 @@ jobs:
       - save_cache:
           key: v1-mix-cache
           paths: "deps"
+
       - save_cache:
           key: v1-build-cache-{{ .Branch }}
           paths: "_build"
       - save_cache:
           key: v1-build-cache
           paths: "_build"
-      - run: mix test
-      - run: mix credo
+
+      - save_cache:
+          key: v1-plt-cache-{{ checksum ".tool-versions" }}
+          paths:
+            - /app/priv/plts
