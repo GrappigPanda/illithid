@@ -4,7 +4,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   use DynamicSupervisor
 
-  alias Illithid.Models
+  alias Illithid.ServerManager.Models.Server
   alias Illithid.ServerManager.DigitalOcean.Worker
   alias Illithid.ServerManager.DigitalOcean.Regions
 
@@ -24,9 +24,9 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   # BuildServerHost Callbacks #
   ########################
 
-  @spec create_server(String.t(), String.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
-  def create_server(build_id, build_definition) do
-    child_spec = {Worker, {build_id, choose_region(), build_definition}}
+  @spec create_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  def create_server(server_id) when is_binary(server_id) do
+    child_spec = {Worker, {server_id, choose_region()}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, child_pid} = retval ->
@@ -39,51 +39,58 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
     end
   end
 
-  @spec destroy_server(server_id :: pid() | String.t()) ::
-          {:ok, Models.Server.t()} | {:error, :no_running_server}
+  @spec destroy_server(server_id :: String.t() | pid | nil) ::
+          {:ok, Server.t()} | {:error, String.t() | :no_running_server}
   def destroy_server(server_id) when is_binary(server_id) do
-    __MODULE__.children_names_to_pids()[server_id]
+    __MODULE__.children_names_to_pids()
+    |> Map.get(server_id)
     |> __MODULE__.destroy_server()
   end
 
-  def destroy_server(nil) do
-    {:error, :no_running_server}
-  end
+  def destroy_server(nil), do: {:error, :no_running_server}
 
-  def destroy_server(server_pid) do
+  def destroy_server(server_pid) when is_pid(server_pid) do
     Worker.destroy_server(server_pid)
   end
 
-  @spec server_alive?(String.t()) :: :ok | :error
+  @spec server_alive?(server_id :: String.t()) :: boolean()
   def server_alive?(server_id) when is_binary(server_id) do
-    __MODULE__.children_names_to_pids()[server_id]
+    __MODULE__.children_names_to_pids()
+    |> Map.get(server_id)
     |> __MODULE__.server_alive?()
   end
 
-  @spec server_alive?(pid) :: :ok | :error
-  def server_alive?(server_pid) do
+  @spec server_alive?(pid) :: boolean()
+  def server_alive?(nil), do: {:error, :invalid_server_id}
+
+  def server_alive?(server_pid) when is_pid(server_pid) do
     Worker.server_alive?(server_pid)
   end
 
-  @spec get_server(String.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
+  @spec get_server(String.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(server_name) when is_binary(server_name) do
     __MODULE__.children_names_to_pids()[server_name]
     |> __MODULE__.get_server()
   end
 
-  @spec get_server(pid) :: {:ok, Models.Server.t()} | {:error, String.t()}
+  @spec get_server(pid) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(pid) do
     Worker.get_server_from_process(pid)
   end
 
-  @spec children() :: [Worker]
+  @spec children() :: [
+          {:undefined, pid() | :restarting, :worker | :supervisor, any()}
+        ]
   def children do
     DynamicSupervisor.which_children(__MODULE__)
   end
 
   @spec count_children() :: number
   def count_children do
+    __MODULE__
+
     DynamicSupervisor.count_children(__MODULE__)
+    |> Map.get(:workers)
   end
 
   @spec children_names() :: [String.t()]

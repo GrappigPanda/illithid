@@ -1,4 +1,4 @@
-defmodule Illithid.Models.Server do
+defmodule Illithid.ServerManager.Models.Server do
   @moduledoc """
   Represents a controlled server.
   """
@@ -20,11 +20,24 @@ defmodule Illithid.Models.Server do
   @enforce_keys @required_keys
   defstruct @required_keys
 
+  @type t :: %__MODULE__{
+          id: String.t(),
+          ip: String.t(),
+          name: String.t(),
+          region: String.t(),
+          memory: String.t(),
+          vcpus: String.t(),
+          disk: String.t(),
+          host: :digital_ocean,
+          status: String.t(),
+          state: atom(),
+          image: String.t()
+        }
+
   # TODO(ian): Change to `new()`
   @doc false
-  def changeset(build_server, attrs) do
-    build_server
-    |> cast(attrs, @required_keys)
+  def changeset(server, attrs) do
+    cast(server, attrs, @required_keys)
   end
 
   defp cast(%__MODULE__{} = server, attributes, keys) do

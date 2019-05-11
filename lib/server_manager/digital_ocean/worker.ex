@@ -6,7 +6,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
-  alias Illithid.Models
+  alias Illithid.ServerManager.Models.Server
   alias Illithid.Utils
 
   require Logger
@@ -48,17 +48,16 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   ####################
 
   @spec server_alive?(pid) :: boolean
-  def server_alive?(pid) do
+  def server_alive?(pid) when is_pid(pid) do
     GenServer.call(pid, :server_alive?)
   end
 
-  # TODO(ian): Fix type spec
-  # @spec destroy_server(pid) :: ???
-  def destroy_server(pid) do
+  @spec destroy_server(pid()) :: {:ok, Server.t()} | {:error, String.t()}
+  def destroy_server(pid) when is_pid(pid) do
     GenServer.call(pid, :destroy)
   end
 
-  @spec get_server_from_process(pid) :: Models.Server.t()
+  @spec get_server_from_process(pid) :: Server.t()
   def get_server_from_process(pid) do
     GenServer.call(pid, :get_server)
   end
@@ -131,7 +130,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
     Logger.info("Creating new server with name #{server_name}")
 
-    with {:ok, %Models.Server{} = server} <- @api.create_server(new_server_request) do
+    with {:ok, %Server{} = server} <- @api.create_server(new_server_request) do
       GenServer.start_link(
         __MODULE__,
         [server, server_name],
@@ -146,10 +145,10 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # Server State Management #
   ###########################
 
-  @spec check_server_status(%Models.Server{}) :: any()
-  def check_server_status(%Models.Server{id: server_id}) do
+  @spec check_server_status(Server.t()) :: any()
+  def check_server_status(%Server{id: server_id}) do
     case @api.get_server(server_id) do
-      {:ok, %Models.Server{status: status}} ->
+      {:ok, %Server{status: status}} ->
         status
 
       _ ->
@@ -161,7 +160,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # @spec server_spawned?(number) :: boolean      #
   # defp server_spawned?(server_id) do            #
   #   case @api.get_server(server_id) do          #
-  #     {:ok, %Models.Server{status: :active}} -> #
+  #     {:ok, %Server{status: :active}} -> #
   #       true                                    #
   #                                               #
   #     _ ->                                      #

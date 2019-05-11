@@ -38,12 +38,11 @@ defmodule Illithid.Timers.Orphans do
   # Internal Functions #
   ######################
 
-  @spec find_orphaned_servers() :: list
+  @spec find_orphaned_servers() :: list | no_return()
   defp find_orphaned_servers() do
     servers =
       case @api.list_servers() do
-        {:ok, nil} -> []
-        {:ok, servers} -> servers
+        {:ok, servers} when is_list(servers) -> servers
         _ -> []
       end
 

@@ -1,4 +1,4 @@
-defmodule Models.DigitalOcean.CreateRequest do
+defmodule Illithid.ServerManager.Models.DigitalOcean.CreateRequest do
   @moduledoc false
   @required_keys [:name, :region, :size, :image]
 

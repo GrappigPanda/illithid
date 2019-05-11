@@ -31,6 +31,7 @@ defmodule Illithid.Timers.ServerlessWorkers do
 
   def handle_info(:kill_orphans, state) do
     for server <- find_serverless_workers(), do: kill_orphan(server)
+
     {:noreply, state}
   end
 
@@ -38,25 +39,31 @@ defmodule Illithid.Timers.ServerlessWorkers do
   # Internal Functions #
   ######################
 
-  @spec find_serverless_workers() :: list
-  defp find_serverless_workers() do
-    servers =
-      case @api.list_servers() do
-        {:ok, servers} -> servers
-        _ -> []
-      end
+  @spec find_serverless_workers() :: [{pid, String.t()}]
+  defp find_serverless_workers do
+    case @api.list_servers() do
+      {:ok, servers} ->
+        server_names = Enum.map(servers, fn s -> s.name end)
 
-    server_names = Enum.map(servers, fn s -> s.name end)
+        pids_to_names =
+          Enum.map(Supervisor.children(), fn {_, child_pid, _, _} ->
+            {child_pid, Worker.get_server_name(child_pid)}
+          end)
 
-    pids_to_names =
-      Enum.map(Supervisor.children(), fn {_, child_pid, _, _} ->
-        {child_pid, Worker.get_server_name(child_pid)}
-      end)
+        retval =
+          Enum.filter(
+            pids_to_names,
+            fn {_pid, name} -> not Enum.member?(server_names, name) end
+          )
 
-    Enum.filter(pids_to_names, fn {_, name} -> name not in server_names end)
+        retval
+
+      _ ->
+        []
+    end
   end
 
-  @spec kill_orphan(pid) :: :ok | {:error, String.t()}
+  @spec kill_orphan({pid, name :: String.t()}) :: :ok | {:error, atom()} | {:error, String.t()}
   defp kill_orphan({pid, name}) do
     Logger.info("Killing orphaned server #{name}")
 

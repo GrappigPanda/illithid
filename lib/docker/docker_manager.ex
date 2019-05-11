@@ -8,7 +8,12 @@ defmodule Illithid.Docker do
   @doc """
   Handles listing all images found on the remote server
   """
-  @spec list_images(String.t(), boolean, number, boolean) :: [Image.t()]
+  @spec list_images(
+          server_ip :: String.t(),
+          all :: number(),
+          limit :: number(),
+          size :: boolean()
+        ) :: {:ok, [Image.t()]} | {:error, HTTPoison.Error.t()}
   def list_images(server_ip, all \\ 0, limit \\ 25, size \\ false) do
     case BaseAPI.get(
            server_url(server_ip) <> "/images/json?all=#{all}&limit=#{limit}&size=#{size}"
@@ -53,7 +58,8 @@ defmodule Illithid.Docker do
   @doc """
   Handles pulling the image locally
   """
-  @spec pull_image(String.t(), String.t()) :: Image.t()
+  @spec pull_image(server_ip :: String.t(), image_name :: String.t()) ::
+          {:ok, map()} | {:error, HTTPoison.Error.t()}
   def pull_image(server_ip, image_name \\ "loicmahieu/wait-for-it") do
     # TODO(ian): Worth determining if there's a better image to be made
     request_data = %{
@@ -83,8 +89,12 @@ defmodule Illithid.Docker do
   @doc """
   Handles listing all containers found on the remote server
   """
-  @spec list_containers(String.t(), boolean, number, boolean) ::
-          {:ok, [Container.t()]} | {:error, HTTPoison.Error.t()}
+  @spec list_containers(
+          server_ip :: String.t(),
+          all :: number(),
+          limit :: number(),
+          size :: boolean()
+        ) :: {:ok, [Container.t()]} | {:error, HTTPoison.Error.t()}
   def list_containers(server_ip, all \\ 1, _limit \\ 25, size \\ false) do
     case BaseAPI.get(server_url(server_ip) <> "/containers/json?all=#{all}&size=#{size}") do
       {:ok, %HTTPoison.Response{body: body}} ->
@@ -141,7 +151,7 @@ defmodule Illithid.Docker do
   @doc """
   Starts a container in the local server.
   """
-  @spec start_container(String.t(), String.t()) :: {:ok, Container.t()}
+  @spec start_container(server_ip :: String.t(), container_id :: String.t()) :: :ok | :error
   def start_container(server_ip, container_id) do
     case BaseAPI.post(server_url(server_ip) <> "/containers/#{container_id}/start", "") do
       {:ok, %HTTPoison.Response{status_code: 204}} ->
@@ -165,7 +175,7 @@ defmodule Illithid.Docker do
   @doc """
   Stops the container in the local server.
   """
-  @spec stop_container(String.t(), String.t()) :: {:ok, Container.t()}
+  @spec stop_container(server_ip :: String.t(), container_id :: String.t()) :: :ok | :error
   def stop_container(server_ip, container_id) do
     case BaseAPI.post(server_url(server_ip) <> "/containers/#{container_id}/stop", "") do
       {:ok, %HTTPoison.Response{status_code: 204}} ->
@@ -189,7 +199,13 @@ defmodule Illithid.Docker do
   @doc """
   Retrieves logs from a container
   """
-  @spec retrieve_container_logs(String.t(), String.t()) :: [String.t()]
+  @spec retrieve_container_logs(
+          server_ip :: String.t(),
+          container_id :: String.t(),
+          timestamps :: boolean(),
+          stdout :: boolean(),
+          stderr :: boolean()
+        ) :: {:ok, String.t()} | :error
   def retrieve_container_logs(
         server_ip,
         container_id,
@@ -204,8 +220,7 @@ defmodule Illithid.Docker do
              }"
          ) do
       {:ok, %HTTPoison.Response{body: body}} ->
-        Logger.debug(body)
-        :ok
+        {:ok, body}
 
       {:error, %HTTPoison.Error{reason: _reason} = error} ->
         Logger.debug("Got error #{inspect(error)} from #{__MODULE__} @ #{inspect(__ENV__)}")
@@ -217,7 +232,7 @@ defmodule Illithid.Docker do
   Executes commands inside a running container
   """
   @spec exec_command(String.t(), String.t(), [String.t()], list) ::
-          {:ok, number, String.t()} | {:error, number, String.t()}
+          {:ok, String.t()} | {:error, String.t()}
   def exec_command(server_ip, container_id, commands, env_args \\ []) when is_list(commands) do
     request_data = %{
       AttachStdin: false,

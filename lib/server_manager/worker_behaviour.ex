@@ -3,12 +3,10 @@ defmodule Illithid.ServerManager.WorkerBehaviour do
   This models the contract that a worker for a host must comply with.
   """
 
-  alias Illithid.Models
-
   #####################
   # Server Management #
   #####################
-  @callback server_alive?(Models.Server.t()) :: boolean | {:error, atom()}
+  @callback server_alive?(pid()) :: boolean | {:error, atom()}
 
   ########################
   # Container Management #

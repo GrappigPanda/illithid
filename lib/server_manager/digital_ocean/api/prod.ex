@@ -7,7 +7,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
 
   alias Jason
   alias Illithid.Utils.BaseAPI
-  alias Illithid.Models
+  alias Illithid.ServerManager.Models
 
   require Logger
 
@@ -79,7 +79,8 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
     end
   end
 
-  @spec destroy_server(String.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
+  @spec destroy_server(String.t() | Models.Server.t()) ::
+          {:ok, Models.Server.t()} | {:error, String.t()}
   def destroy_server(server_name) when is_binary(server_name) do
     {:ok, servers} = list_servers()
     server = Enum.find(servers, fn s -> s.name == server_name end)
@@ -96,11 +97,8 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
     end
   end
 
-  @spec destroy_server(Models.Server.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
   def destroy_server(%Models.Server{} = server) do
-    retval = BaseAPI.delete(@droplets_url <> "#{inspect(server.id)}", request_headers())
-
-    case retval do
+    case BaseAPI.delete(@droplets_url <> "#{inspect(server.id)}", request_headers()) do
       {:ok, %HTTPoison.Response{}} -> {:ok, server}
       {:error, %HTTPoison.Error{reason: reason}} -> {:error, reason}
     end
@@ -108,19 +106,17 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
 
   @spec server_alive?(Models.Server.t()) :: boolean
   def server_alive?(%Models.Server{id: server_id}) do
-    retval = BaseAPI.get(@droplets_url <> "#{server_id}", request_headers())
-
-    case retval do
+    case BaseAPI.get(@droplets_url <> "#{server_id}", request_headers()) do
       {:ok, %HTTPoison.Response{}} -> true
       {:error, %HTTPoison.Error{}} -> false
     end
   end
 
-  @spec auth_token() :: String.t()
+  @spec request_headers() :: [tuple()]
   defp request_headers,
     do: [Authorization: "Bearer #{auth_token()}", "Content-Type": "application/json"]
 
-  @spec request_headers() :: String.t()
+  @spec auth_token() :: String.t()
   defp auth_token, do: Application.get_env(:digital_ocean, :auth_token)
 
   @spec from_droplet([%{required(String.t()) => any()}] | %{required(String.t()) => any()}) ::

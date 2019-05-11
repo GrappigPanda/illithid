@@ -3,12 +3,13 @@ defmodule Illithid.ServerManager.ServerHostBehaviour do
   Contract for server hosts.
   """
 
-  alias Illithid.Models
+  alias Illithid.ServerManager.Models.Server
 
   #####################
   # Server Management #
   #####################
-  @callback create_server(number, number) :: {:ok, Models.Server.t()} | {:error, String.t()}
-  @callback destroy_server(pid) :: {:ok, Models.Server.t()} | {:error, String.t()}
-  @callback server_alive?(pid) :: {:ok, Models.Server.t()} | {:error, String.t()}
+  @callback create_server(String.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  @callback destroy_server(String.t() | pid()) ::
+              {:ok, Server.t()} | {:error, String.t() | :no_running_server}
+  @callback server_alive?(pid) :: boolean()
 end

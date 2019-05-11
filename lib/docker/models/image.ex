@@ -21,11 +21,11 @@ defmodule Illithid.Docker.Models.Image do
   @doc """
   Handles converting Image -> map
   """
-  @spec to_map(t()) :: %{required(atom()) => any()}
-  def to_map(%__MODULE__{} = input) do
+  @spec to_map(t()) :: %{required(:name) => String.t(), required(:id) => String.t()}
+  def to_map(%__MODULE__{name: name, id: id}) do
     %{
-      name: input.names,
-      id: input.id
+      name: name,
+      id: id
     }
   end
 end
