@@ -3,7 +3,6 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
   @moduledoc """
   The production API handler
   """
-  # TODO(ian): Make this into a behaviour
 
   alias Jason
   alias Illithid.Utils.BaseAPI
