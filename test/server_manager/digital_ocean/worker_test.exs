@@ -2,14 +2,11 @@ defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
   alias Illithid.ServerManager.DigitalOcean.Supervisor
   alias Illithid.ServerManager.DigitalOcean.Worker
 
-  alias Illithid.ServerManager.Models.Server
+  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
 
   use ExUnit.Case, async: false
 
   setup_all do
-    {:ok, _supervsior} = Supervisor.start_link([])
-    :timer.sleep(1_000)
-
     server =
       Server.new(
         "0",
@@ -25,8 +22,15 @@ defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
         "test/001"
       )
 
-    {:ok, pid} = Supervisor.create_server(server.id)
-    {:ok, pid_delete} = Supervisor.create_server("delete-me")
+    scc =
+      ServerCreationContext.new(
+        server.host,
+        server.id,
+        5
+      )
+
+    {:ok, pid} = Supervisor.create_server(scc)
+    {:ok, pid_delete} = Supervisor.create_server(Map.put(scc, :server_id, "delete-me"))
 
     %{server: server, pid: pid, pid_delete: pid_delete}
   end

@@ -1,10 +1,12 @@
 defmodule Illithid.ServerManager do
   @moduledoc false
   use Supervisor
+  use Application
 
-  alias ServerManager.Timers.Orphans
+  alias Illithid.Timers.Orphans
+  alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
 
-  def start_link() do
+  def start(_type, _args) do
     start_link([])
   end
 

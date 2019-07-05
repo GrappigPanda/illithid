@@ -10,9 +10,9 @@ defmodule Illithid do
   Creates and monitors a server
   """
   @spec create_server(ServerCreationContext.t()) :: {:ok, pid} | {:error, binary()}
-  def create_server(%ServerCreationContext{server_id: server_id, host: host}) do
+  def create_server(%ServerCreationContext{host: host} = scc) do
     with {:ok, supervisor} <- resolve_supervisor_from_host(host) do
-      supervisor.create_server(server_id)
+      supervisor.create_server(scc)
     end
   end
 

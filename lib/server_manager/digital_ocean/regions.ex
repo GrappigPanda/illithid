@@ -11,7 +11,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Regions do
   def all_regions do
     # TODO(ian): Replace this with an API call.
     [
-      %Region{name: "NYC", slug: "nyc", available: true}
+      %Region{name: "NYC1", slug: "nyc1", available: true}
     ]
   end
 

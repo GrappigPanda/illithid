@@ -6,7 +6,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
-  alias Illithid.ServerManager.Models.Server
+  alias Illithid.ServerManager.Models.{Region, Server, ServerCreationContext}
 
   require Logger
 
@@ -18,7 +18,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
     start_link(args)
   end
 
-  def start_link({server_id, region}) do
+  def start_link({%ServerCreationContext{server_id: server_id, image: image}, region}) do
     case @api.list_servers() do
       {:ok, servers} ->
         server = Enum.find(servers, fn server -> server.name == server_id end)
@@ -26,7 +26,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
         if server != nil do
           # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
         else
-          create_server(server_id, region)
+          create_server(server_id, region, image)
         end
 
       {:error, reason} ->
@@ -108,19 +108,17 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # Misc Calls #
   ##############
 
-  @spec create_server(String.t(), String.t()) :: {:ok, Server.t()} | {:error, String.t()}
-  defp create_server(server_name, region) do
+  @spec create_server(String.t(), Region.t(), image :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  defp create_server(server_name, %Region{slug: region_slug}, image) do
     # TODO(ian): Don't convert this to an atom, is pretty dumb
     name_atom = String.to_atom(server_name)
 
     # TODO(ian): This should re-use the ServerContext mentioned somewhere above
     new_server_request = %{
       "name" => server_name,
-      "region" => region,
+      "region" => region_slug,
       "size" => "s-1vcpu-1gb",
-      # "base-image-docker"
-      "image" => 0
-      # TODO(ian): Move image to config
+      "image" => image
     }
 
     Logger.info("Creating new server with name #{server_name}")

@@ -25,3 +25,5 @@ illithid-*.tar
 
 priv/plts/*
 !priv/plts/IGNORE.md
+
+*.secret.exs

@@ -4,7 +4,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   use DynamicSupervisor
 
-  alias Illithid.ServerManager.Models.Server
+  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
   alias Illithid.ServerManager.DigitalOcean.Worker
   alias Illithid.ServerManager.DigitalOcean.Regions
 
@@ -24,10 +24,9 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   # BuildServerHost Callbacks #
   ########################
 
-  @spec create_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
-  def create_server(server_id) when is_binary(server_id) do
-    # TODO(ian): Replace 001 with unique runtime id
-    child_spec = {Worker, {server_id, choose_region()}}
+  @spec create_server(ServerCreationContext.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  def create_server(%ServerCreationContext{} = scc) do
+    child_spec = {Worker, {scc, choose_region()}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, child_pid} = retval ->

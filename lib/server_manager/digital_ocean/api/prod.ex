@@ -57,6 +57,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
           "image" => _image
         } = request
       ) do
+    IO.inspect(request_headers())
     case BaseAPI.post(@droplets_url, Jason.encode!(request), request_headers()) do
       {:ok, %HTTPoison.Response{body: response, status_code: 202}} ->
         server =
@@ -111,12 +112,26 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
     end
   end
 
+  @spec list_images(list_local :: bool()) :: [{String.t(), any()}]
+  def list_images(list_local \\ false) do
+    uri = case list_local do
+            true -> "images?private=true"
+            _ -> "images"
+          end
+    case BaseAPI.get(@url <> uri, request_headers()) do
+      {:ok, %HTTPoison.Response{body: body}} ->
+        body
+        |> Jason.decode!()
+      {:error, %HTTPoison.Error{}} -> {:error, :cannot_list_images}
+    end
+  end
+
   @spec request_headers() :: [tuple()]
   defp request_headers,
     do: [Authorization: "Bearer #{auth_token()}", "Content-Type": "application/json"]
 
   @spec auth_token() :: String.t()
-  defp auth_token, do: Application.get_env(:digital_ocean, :auth_token)
+  defp auth_token, do: Application.get_env(:illithid, :digital_ocean)[:auth_token]
 
   @spec from_droplet([%{required(String.t()) => any()}] | %{required(String.t()) => any()}) ::
           [Models.Server.t()] | Models.Server.t()
@@ -153,7 +168,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
          "region" => %{"slug" => region_slug}
        }) do
     Models.Server.new(
-      id,
+      Integer.to_string(id),
       ip,
       name,
       region_slug,
