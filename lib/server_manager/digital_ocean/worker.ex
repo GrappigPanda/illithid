@@ -7,7 +7,6 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
   alias Illithid.ServerManager.Models.Server
-  alias Illithid.Utils
 
   require Logger
 
@@ -15,21 +14,19 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # GenServer Callbacks #
   #######################
 
-  def start_link([], {_, _, _} = args) do
+  def start_link([], {_, _} = args) do
     start_link(args)
   end
 
-  def start_link({server_uuid, customer_id, region}) do
-    server_name = Utils.create_server_name([server_uuid, customer_id])
-
+  def start_link({server_id, region}) do
     case @api.list_servers() do
       {:ok, servers} ->
-        server = Enum.find(servers, fn server -> server.name == server_name end)
+        server = Enum.find(servers, fn server -> server.name == server_id end)
 
         if server != nil do
           # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
         else
-          create_server(server_name, region, server_uuid)
+          create_server(server_id, region)
         end
 
       {:error, reason} ->
@@ -94,13 +91,13 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   end
 
   def handle_call(:check_server_status, _from, state) do
-    build_server = check_server_status(state.server)
-    {:reply, state.server, Map.put(state, :server, build_server)}
+    updated_server = check_server_status(state.server)
+    {:reply, state.server, Map.put(state, :server, updated_server)}
   end
 
   def handle_info(:check_server_status, state) do
-    build_server = check_server_status(state.server)
-    {:noreply, Map.put(state, :server, build_server)}
+    updated_server = check_server_status(state.server)
+    {:noreply, Map.put(state, :server, updated_server)}
   end
 
   def handle_info(:shutdown, state) do
@@ -111,10 +108,8 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # Misc Calls #
   ##############
 
-  @spec create_server(String.t(), String.t(), String.t()) ::
-          {:ok, Server.t()} | {:error, String.t()}
-  defp create_server(server_name, region, server_uuid)
-       when is_binary(server_uuid) do
+  @spec create_server(String.t(), String.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  defp create_server(server_name, region) do
     # TODO(ian): Don't convert this to an atom, is pretty dumb
     name_atom = String.to_atom(server_name)
 
@@ -148,8 +143,8 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   @spec check_server_status(Server.t()) :: any()
   def check_server_status(%Server{id: server_id}) do
     case @api.get_server(server_id) do
-      {:ok, %Server{status: status}} ->
-        status
+      {:ok, %Server{} = server} ->
+        server
 
       _ ->
         {:error, :check_server_status_failed}

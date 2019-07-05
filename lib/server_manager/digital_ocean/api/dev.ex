@@ -21,13 +21,13 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
   end
 
   @spec list_servers() :: {:ok, [Models.Server.t()]} | {:error, String.t()}
-  def list_servers(opts \\ [fail: false]) do
-    case Access.get(opts, :fail) do
+  def list_servers(ops \\ [fail: false]) do
+    case Access.get(ops, :fail) do
       true ->
-        {:ok, [mock_server(), mock_server()]}
+        {:error, "asdf"}
 
       _ ->
-        {:error, "Failed to list servers"}
+        {:ok, [mock_server(), mock_server()]}
     end
   end
 
@@ -76,18 +76,18 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
 
   @spec mock_server(server_name :: String.t()) :: Models.Server.t()
   defp mock_server(server_name \\ "test_name") do
-    %Models.Server{
-      id: "0",
-      ip: "127.0.0.1",
-      name: server_name,
-      region: "NYC",
-      memory: "4gb",
-      vcpus: "4",
-      disk: "100gb",
-      host: :digital_ocean,
-      status: "started",
-      state: :started,
-      image: "test/001"
-    }
+    Models.Server.new(
+      "0",
+      "127.0.0.1",
+      server_name,
+      "NYC",
+      "4gb",
+      "4",
+      "100gb",
+      :digital_ocean,
+      "started",
+      :started,
+      "test/001"
+    )
   end
 end

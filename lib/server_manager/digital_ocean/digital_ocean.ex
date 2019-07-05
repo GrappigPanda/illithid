@@ -26,6 +26,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec create_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def create_server(server_id) when is_binary(server_id) do
+    # TODO(ian): Replace 001 with unique runtime id
     child_spec = {Worker, {server_id, choose_region()}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
@@ -75,7 +76,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec get_server(pid) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(pid) do
-    Worker.get_server_from_process(pid)
+    {:ok, Worker.get_server_from_process(pid)}
   end
 
   @spec children() :: [

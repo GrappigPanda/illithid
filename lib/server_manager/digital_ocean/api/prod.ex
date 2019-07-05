@@ -152,20 +152,20 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
          "image" => %{"slug" => image_slug},
          "region" => %{"slug" => region_slug}
        }) do
-    %Models.Server{
-      id: id,
-      name: name,
-      memory: memory,
-      vcpus: vcpus,
-      disk: disk,
-      status: status,
-      image: image_slug,
-      region: region_slug,
-      ip: ip,
-      # TODO(ian): This might be incorrect
-      state: :started,
-      host: :digital_ocean
-    }
+    Models.Server.new(
+      id,
+      ip,
+      name,
+      region_slug,
+      memory,
+      vcpus,
+      disk,
+      :digital_ocean,
+      # TODO(ian): Maybe incorrect status
+      status,
+      :started,
+      image_slug
+    )
   end
 
   defp do_from_droplet(_ip, _droplet) do
