@@ -59,6 +59,7 @@ defmodule Illithid.ServerManager.Models.Server do
           state :: atom(),
           image :: String.t()
         ) :: t()
+  # credo:disable-for-next-line
   def new(id, ip, name, region, memory, vcpus, disk, host, status, state, image) do
     %__MODULE__{
       id: id,
