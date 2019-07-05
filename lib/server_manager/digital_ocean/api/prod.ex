@@ -57,7 +57,6 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
           "image" => _image
         } = request
       ) do
-    IO.inspect(request_headers())
     case BaseAPI.post(@droplets_url, Jason.encode!(request), request_headers()) do
       {:ok, %HTTPoison.Response{body: response, status_code: 202}} ->
         server =
@@ -114,15 +113,19 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
 
   @spec list_images(list_local :: bool()) :: [{String.t(), any()}]
   def list_images(list_local \\ false) do
-    uri = case list_local do
-            true -> "images?private=true"
-            _ -> "images"
-          end
+    uri =
+      case list_local do
+        true -> "images?private=true"
+        _ -> "images"
+      end
+
     case BaseAPI.get(@url <> uri, request_headers()) do
       {:ok, %HTTPoison.Response{body: body}} ->
         body
         |> Jason.decode!()
-      {:error, %HTTPoison.Error{}} -> {:error, :cannot_list_images}
+
+      {:error, %HTTPoison.Error{}} ->
+        {:error, :cannot_list_images}
     end
   end
 
