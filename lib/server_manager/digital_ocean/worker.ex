@@ -19,19 +19,24 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   end
 
   def start_link({%ServerCreationContext{server_id: server_id, image: image}, region}) do
-    case @api.list_servers() do
-      {:ok, servers} ->
-        server = Enum.find(servers, fn server -> server.name == server_id end)
+    with {:ok, servers} <- @api.list_servers(),
+         {:ok, images} <- @api.list_images() do
+      image_id =
+        images
+        |> Map.get("images")
+        |> Enum.find(fn
+          %{"name" => ^image} -> true
+          _ -> false
+        end)
+        |> Map.get("id")
 
-        if server != nil do
-          # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
-        else
-          create_server(server_id, region, image)
-        end
+      server = Enum.find(servers, fn server -> server.name == server_id end)
 
-      {:error, reason} ->
-        Logger.error("Failed to list servers because #{reason}.")
-        {:error, reason}
+      if server != nil do
+        # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
+      else
+        create_server(server_id, region, image_id)
+      end
     end
   end
 
@@ -108,7 +113,8 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # Misc Calls #
   ##############
 
-  @spec create_server(String.t(), Region.t(), image :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  @spec create_server(String.t(), Region.t(), image :: String.t()) ::
+          {:ok, Server.t()} | {:error, String.t()}
   defp create_server(server_name, %Region{slug: region_slug}, image) do
     # TODO(ian): Don't convert this to an atom, is pretty dumb
     name_atom = String.to_atom(server_name)

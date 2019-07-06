@@ -26,7 +26,7 @@ defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
       ServerCreationContext.new(
         server.host,
         server.id,
-        5
+        "base-docker-image"
       )
 
     {:ok, pid} = Supervisor.create_server(scc)

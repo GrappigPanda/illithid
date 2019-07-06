@@ -111,7 +111,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
     end
   end
 
-  @spec list_images(list_local :: bool()) :: [{String.t(), any()}]
+  @spec list_images(list_local :: bool()) :: {:ok, map()} | {:error, atom()}
   def list_images(list_local \\ false) do
     uri =
       case list_local do

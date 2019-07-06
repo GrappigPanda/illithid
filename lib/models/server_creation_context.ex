@@ -15,16 +15,15 @@ defmodule Illithid.ServerManager.Models.ServerCreationContext do
   @type t :: %__MODULE__{
           host: :digital_ocean,
           server_id: String.t(),
-          image: number()
+          image: String.t()
         }
 
-  @spec new(host :: atom(), server_id :: String.t(), image :: number()) :: t()
+  @spec new(host :: atom(), server_id :: String.t(), image :: String.t()) :: t()
   def new(host, server_id, image)
-      when is_atom(host) and is_bitstring(server_id) and is_number(image) do
+      when is_atom(host) and is_bitstring(server_id) and is_bitstring(image) do
     %__MODULE__{
       host: host,
       server_id: server_id,
-      # TODO(ian): Use this and the new list_images to grab the id
       image: image
     }
   end

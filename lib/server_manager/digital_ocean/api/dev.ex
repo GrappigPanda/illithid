@@ -9,6 +9,65 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
 
   require Logger
 
+  @spec list_images(local_only :: bool()) :: map()
+  def list_images(_local_only \\ false) do
+    {:ok,
+     %{
+       "images" => [
+         %{
+           "created_at" => "2018-06-17T01:06:35Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_362_300,
+           "min_disk_size" => 25,
+           "name" => "docker-daemon-001",
+           "public" => false,
+           "regions" => ["nyc1"],
+           "size_gigabytes" => 2.07,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         },
+         %{
+           "created_at" => "2018-06-21T00:33:44Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_483_384,
+           "min_disk_size" => 25,
+           "name" => "docker-daemon-002",
+           "public" => false,
+           "regions" => ["nyc1"],
+           "size_gigabytes" => 2.75,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         },
+         %{
+           "created_at" => "2018-07-01T03:18:22Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_799_624,
+           "min_disk_size" => 25,
+           "name" => "base-docker-image",
+           "public" => false,
+           "regions" => ["nyc1", "nyc3"],
+           "size_gigabytes" => 2.94,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         }
+       ],
+       "links" => %{},
+       "meta" => %{"total" => 3}
+     }}
+  end
+
   @spec get_server(server_id :: String.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
   def get_server(server_id) do
     case server_id do
