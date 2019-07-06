@@ -7,7 +7,8 @@ defmodule Illithid.Timers.ServerlessWorkers do
 
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
-  alias Illithid.ServerManager.DigitalOcean.{Supervisor, Worker}
+  alias Illithid.ServerManager.DigitalOcean.Supervisor
+  alias Illithid.ServerManager.Worker
 
   require Logger
 

@@ -1,6 +1,6 @@
-defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
+defmodule Illithid.ServerManager.WorkerTest do
   alias Illithid.ServerManager.DigitalOcean.Supervisor
-  alias Illithid.ServerManager.DigitalOcean.Worker
+  alias Illithid.ServerManager.Worker
 
   alias Illithid.Models.{Server, ServerCreationContext}
 
