@@ -79,7 +79,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   def handle_call(:destroy, _from, state) do
     case @api.destroy_server(state.server) do
-      {:ok, _} -> {:stop, :normal, :ok, state}
+      {:ok, _} -> {:stop, :normal, {:ok, state.server}, state}
       _ -> {:reply, {:error, "Failed to stop server."}}
     end
   rescue

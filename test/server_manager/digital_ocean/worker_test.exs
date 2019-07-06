@@ -42,8 +42,8 @@ defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
   end
 
   describe "destroy_server/1" do
-    test "Pass, correct pid", %{pid_delete: pid} do
-      assert Worker.destroy_server(pid) == :ok
+    test "Pass, correct pid", %{pid_delete: pid, server: server} do
+      assert Worker.destroy_server(pid) == {:ok, server}
     end
   end
 

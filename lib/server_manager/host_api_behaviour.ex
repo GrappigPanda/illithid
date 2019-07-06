@@ -3,7 +3,7 @@ defmodule Illithid.ServerManager.HostAPIBehaviour do
   The contract for host apis.
   """
 
-  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
+  alias Illithid.Models.{Server, ServerCreationContext}
 
   # TODO(ian): See if we can tighten these return values a little more.
   @callback get_server(String.t()) :: {:ok, Server.t()} | {:error, String.t()}
