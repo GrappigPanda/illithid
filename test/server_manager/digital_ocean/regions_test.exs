@@ -2,7 +2,7 @@ defmodule Illithid.ServerManager.DigitalOcean.RegionsTest do
   use ExUnit.Case, async: true
 
   alias Illithid.ServerManager.DigitalOcean.Regions
-  alias Illithid.ServerManager.Models.Region
+  alias Illithid.Models.Region
 
   describe "all_available_regions/0" do
     test "Lists all regions" do

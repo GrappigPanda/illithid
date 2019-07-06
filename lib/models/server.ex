@@ -1,4 +1,4 @@
-defmodule Illithid.ServerManager.Models.Server do
+defmodule Illithid.Models.Server do
   @moduledoc """
   Represents a controlled server.
   """

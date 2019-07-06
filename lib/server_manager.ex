@@ -3,7 +3,7 @@ defmodule Illithid.ServerManager do
   use Supervisor
   use Application
 
-  alias Illithid.Timers.Orphans
+  alias Illithid.Timers.{Orphans, ServerlessWorkers}
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
 
   def start(_type, _args) do
@@ -17,7 +17,8 @@ defmodule Illithid.ServerManager do
   def init(_arg) do
     children = [
       {DOSupervisor, []},
-      {Orphans, []}
+      {Orphans, []},
+      {ServerlessWorkers, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -3,7 +3,7 @@ defmodule Illithid.ServerManager.ServerHostBehaviour do
   Contract for server hosts.
   """
 
-  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
+  alias Illithid.Models.{Server, ServerCreationContext}
 
   #####################
   # Server Management #
