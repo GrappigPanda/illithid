@@ -40,7 +40,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
           response
           |> Jason.decode!()
           |> Map.get("servers")
-          |> server_from_map()
+          |> Enum.map(&server_from_map/1)
 
         {:ok, server}
 
@@ -73,8 +73,8 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   end
 
   @spec destroy_server(String.t() | Server.t()) :: {:ok, Server.t()} | {:error, String.t()}
-  def destroy_server(server_name) when is_binary(server_name) do
-    case BaseAPI.delete(@server_url <> server_name, request_headers()) do
+  def destroy_server(server_id) when is_binary(server_id) do
+    case BaseAPI.delete(@server_url <> server_id, request_headers()) do
       {:ok, %HTTPoison.Response{body: response}} ->
         server =
           response
@@ -89,25 +89,23 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
     end
   end
 
-  def destroy_server(%Server{name: server_name}) do
-    case BaseAPI.delete(@server_url <> server_name, request_headers()) do
-      {:ok, %HTTPoison.Response{body: response}} ->
-        server =
-          response
-          |> Jason.decode!()
-          |> Map.get("server")
-          |> server_from_map()
+  def destroy_server(%Server{id: server_id}) do
+    server_id_str = Integer.to_string(server_id)
 
-        {:ok, server}
+    with {:ok, server} <- get_server(server_id_str) do
+      case BaseAPI.delete(@server_url <> Integer.to_string(server_id), request_headers()) do
+        {:ok, %HTTPoison.Response{}} ->
+          {:ok, server}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, reason}
+        {:error, %HTTPoison.Error{reason: reason}} ->
+          {:error, reason}
+      end
     end
   end
 
   @spec server_alive?(Server.t()) :: boolean
-  def server_alive?(%Server{name: server_name}) do
-    case get_server(server_name) do
+  def server_alive?(%Server{id: server_id}) do
+    case get_server(Integer.to_string(server_id)) do
       {:ok, %Server{status: status}} ->
         Enum.member?(@running_statuses, status)
 
@@ -118,7 +116,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
 
   @spec list_images(list_local :: bool()) :: {:ok, map()} | {:error, atom()}
   def list_images(_list_local \\ true) do
-    case BaseAPI.get(@server_url <> "images?status=available", request_headers()) do
+    case BaseAPI.get(@url <> "images?status=available", request_headers()) do
       {:ok, %HTTPoison.Response{body: response}} ->
         {:ok, Jason.decode!(response)}
 
