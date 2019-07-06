@@ -1,4 +1,4 @@
-defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
+defmodule Illithid.ServerManager.Hetzner.API.Dev do
   @behaviour Illithid.ServerManager.HostAPIBehaviour
   @moduledoc """
   The production API handler
