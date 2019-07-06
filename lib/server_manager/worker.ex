@@ -3,7 +3,7 @@ defmodule Illithid.ServerManager.Worker do
 
   use GenServer, restart: :transient
 
-  alias Illithid.ServerManager.Models.{Region, Server, ServerCreationContext}
+  alias Illithid.Models.{Region, Server, ServerCreationContext}
 
   require Logger
 
@@ -76,7 +76,7 @@ defmodule Illithid.ServerManager.Worker do
 
   def handle_call(:destroy, _from, state) do
     case state.api.destroy_server(state.server) do
-      {:ok, _} -> {:stop, :normal, :ok, state}
+      {:ok, _} -> {:stop, :normal, {:ok, state.server}, state}
       _ -> {:reply, {:error, "Failed to stop server."}}
     end
   rescue
