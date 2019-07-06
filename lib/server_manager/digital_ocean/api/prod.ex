@@ -111,12 +111,30 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
     end
   end
 
+  @spec list_images(list_local :: bool()) :: {:ok, map()} | {:error, atom()}
+  def list_images(list_local \\ true) do
+    uri =
+      case list_local do
+        true -> "images?private=true"
+        _ -> "images"
+      end
+
+    case BaseAPI.get(@url <> uri, request_headers()) do
+      {:ok, %HTTPoison.Response{body: body}} ->
+        body
+        |> Jason.decode!()
+
+      {:error, %HTTPoison.Error{}} ->
+        {:error, :cannot_list_images}
+    end
+  end
+
   @spec request_headers() :: [tuple()]
   defp request_headers,
     do: [Authorization: "Bearer #{auth_token()}", "Content-Type": "application/json"]
 
   @spec auth_token() :: String.t()
-  defp auth_token, do: Application.get_env(:digital_ocean, :auth_token)
+  defp auth_token, do: Application.get_env(:illithid, :digital_ocean)[:auth_token]
 
   @spec from_droplet([%{required(String.t()) => any()}] | %{required(String.t()) => any()}) ::
           [Models.Server.t()] | Models.Server.t()
@@ -152,20 +170,20 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
          "image" => %{"slug" => image_slug},
          "region" => %{"slug" => region_slug}
        }) do
-    %Models.Server{
-      id: id,
-      name: name,
-      memory: memory,
-      vcpus: vcpus,
-      disk: disk,
-      status: status,
-      image: image_slug,
-      region: region_slug,
-      ip: ip,
-      # TODO(ian): This might be incorrect
-      state: :started,
-      host: :digital_ocean
-    }
+    Models.Server.new(
+      Integer.to_string(id),
+      ip,
+      name,
+      region_slug,
+      memory,
+      vcpus,
+      disk,
+      :digital_ocean,
+      # TODO(ian): Maybe incorrect status
+      status,
+      :started,
+      image_slug
+    )
   end
 
   defp do_from_droplet(_ip, _droplet) do

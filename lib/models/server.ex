@@ -45,4 +45,34 @@ defmodule Illithid.ServerManager.Models.Server do
       Map.put(server, key, Map.get(attributes, key))
     end)
   end
+
+  @spec new(
+          id :: String.t(),
+          ip :: String.t(),
+          name :: String.t(),
+          region :: String.t(),
+          memory :: String.t(),
+          vcpus :: String.t(),
+          disk :: String.t(),
+          host :: atom(),
+          status :: String.t(),
+          state :: atom(),
+          image :: String.t()
+        ) :: t()
+  # credo:disable-for-next-line
+  def new(id, ip, name, region, memory, vcpus, disk, host, status, state, image) do
+    %__MODULE__{
+      id: id,
+      ip: ip,
+      name: name,
+      region: region,
+      memory: memory,
+      vcpus: vcpus,
+      disk: disk,
+      host: host,
+      status: status,
+      state: state,
+      image: image
+    }
+  end
 end

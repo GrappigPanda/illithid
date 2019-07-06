@@ -4,7 +4,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   use DynamicSupervisor
 
-  alias Illithid.ServerManager.Models.Server
+  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
   alias Illithid.ServerManager.DigitalOcean.Worker
   alias Illithid.ServerManager.DigitalOcean.Regions
 
@@ -24,9 +24,9 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   # BuildServerHost Callbacks #
   ########################
 
-  @spec create_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
-  def create_server(server_id) when is_binary(server_id) do
-    child_spec = {Worker, {server_id, choose_region()}}
+  @spec create_server(ServerCreationContext.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  def create_server(%ServerCreationContext{} = scc) do
+    child_spec = {Worker, {scc, choose_region()}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, child_pid} = retval ->
@@ -42,9 +42,9 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   @spec destroy_server(server_id :: String.t() | pid | nil) ::
           {:ok, Server.t()} | {:error, String.t() | :no_running_server}
   def destroy_server(server_id) when is_binary(server_id) do
-    __MODULE__.children_names_to_pids()
+    children_names_to_pids()
     |> Map.get(server_id)
-    |> __MODULE__.destroy_server()
+    |> destroy_server()
   end
 
   def destroy_server(nil), do: {:error, :no_running_server}
@@ -55,9 +55,9 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec server_alive?(server_id :: String.t()) :: boolean()
   def server_alive?(server_id) when is_binary(server_id) do
-    __MODULE__.children_names_to_pids()
+    children_names_to_pids()
     |> Map.get(server_id)
-    |> __MODULE__.server_alive?()
+    |> server_alive?()
   end
 
   @spec server_alive?(pid) :: boolean()
@@ -69,13 +69,13 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec get_server(String.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(server_name) when is_binary(server_name) do
-    __MODULE__.children_names_to_pids()[server_name]
-    |> __MODULE__.get_server()
+    children_names_to_pids()[server_name]
+    |> get_server()
   end
 
   @spec get_server(pid) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(pid) do
-    Worker.get_server_from_process(pid)
+    {:ok, Worker.get_server_from_process(pid)}
   end
 
   @spec children() :: [
@@ -94,12 +94,12 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec children_names() :: [String.t()]
   def children_names() do
-    Enum.map(__MODULE__.children(), fn {_, pid, _, _} -> Worker.get_server_name(pid) end)
+    Enum.map(children(), fn {_, pid, _, _} -> Worker.get_server_name(pid) end)
   end
 
   @spec children_names_to_pids() :: map
   def children_names_to_pids() do
-    Enum.into(__MODULE__.children(), %{}, fn {_, pid, _, _} ->
+    Enum.into(children(), %{}, fn {_, pid, _, _} ->
       {Worker.get_server_name(pid), pid}
     end)
   end

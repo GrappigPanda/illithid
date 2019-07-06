@@ -6,8 +6,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
-  alias Illithid.ServerManager.Models.Server
-  alias Illithid.Utils
+  alias Illithid.ServerManager.Models.{Region, Server, ServerCreationContext}
 
   require Logger
 
@@ -15,26 +14,29 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # GenServer Callbacks #
   #######################
 
-  def start_link([], {_, _, _} = args) do
+  def start_link([], {_, _} = args) do
     start_link(args)
   end
 
-  def start_link({server_uuid, customer_id, region}) do
-    server_name = Utils.create_server_name([server_uuid, customer_id])
+  def start_link({%ServerCreationContext{server_id: server_id, image: image}, region}) do
+    with {:ok, servers} <- @api.list_servers(),
+         {:ok, images} <- @api.list_images(true) do
+      server = Enum.find(servers, fn server -> server.name == server_id end)
 
-    case @api.list_servers() do
-      {:ok, servers} ->
-        server = Enum.find(servers, fn server -> server.name == server_name end)
+      if server != nil do
+        # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
+      else
+        image_id =
+          images
+          |> Map.get("images")
+          |> Enum.find(fn
+            %{"name" => ^image} -> true
+            _ -> false
+          end)
+          |> Map.get("id")
 
-        if server != nil do
-          # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
-        else
-          create_server(server_name, region, server_uuid)
-        end
-
-      {:error, reason} ->
-        Logger.error("Failed to list servers because #{reason}.")
-        {:error, reason}
+        create_server(server_id, region, image_id)
+      end
     end
   end
 
@@ -94,13 +96,13 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   end
 
   def handle_call(:check_server_status, _from, state) do
-    build_server = check_server_status(state.server)
-    {:reply, state.server, Map.put(state, :server, build_server)}
+    updated_server = check_server_status(state.server)
+    {:reply, state.server, Map.put(state, :server, updated_server)}
   end
 
   def handle_info(:check_server_status, state) do
-    build_server = check_server_status(state.server)
-    {:noreply, Map.put(state, :server, build_server)}
+    updated_server = check_server_status(state.server)
+    {:noreply, Map.put(state, :server, updated_server)}
   end
 
   def handle_info(:shutdown, state) do
@@ -111,21 +113,18 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   # Misc Calls #
   ##############
 
-  @spec create_server(String.t(), String.t(), String.t()) ::
+  @spec create_server(String.t(), Region.t(), image :: String.t()) ::
           {:ok, Server.t()} | {:error, String.t()}
-  defp create_server(server_name, region, server_uuid)
-       when is_binary(server_uuid) do
+  defp create_server(server_name, %Region{slug: region_slug}, image) do
     # TODO(ian): Don't convert this to an atom, is pretty dumb
     name_atom = String.to_atom(server_name)
 
     # TODO(ian): This should re-use the ServerContext mentioned somewhere above
     new_server_request = %{
       "name" => server_name,
-      "region" => region,
+      "region" => region_slug,
       "size" => "s-1vcpu-1gb",
-      # "base-image-docker"
-      "image" => 0
-      # TODO(ian): Move image to config
+      "image" => image
     }
 
     Logger.info("Creating new server with name #{server_name}")
@@ -148,8 +147,8 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
   @spec check_server_status(Server.t()) :: any()
   def check_server_status(%Server{id: server_id}) do
     case @api.get_server(server_id) do
-      {:ok, %Server{status: status}} ->
-        status
+      {:ok, %Server{} = server} ->
+        server
 
       _ ->
         {:error, :check_server_status_failed}
