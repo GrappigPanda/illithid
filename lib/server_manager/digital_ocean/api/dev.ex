@@ -5,6 +5,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
   """
 
   alias Jason
+  alias Illithid.Constants.Hosts
   alias Illithid.Models
 
   require Logger
@@ -143,7 +144,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
       "4gb",
       "4",
       "100gb",
-      :digital_ocean,
+      Hosts.digital_ocean(),
       "started",
       :started,
       "test/001"

@@ -13,7 +13,7 @@ defmodule Illithid.Models.ServerCreationContext do
   defstruct @required_keys
 
   @type t :: %__MODULE__{
-          host: :digital_ocean,
+          host: atom(),
           server_id: String.t(),
           image: String.t()
         }

@@ -1,7 +1,8 @@
 defmodule Illithid.ServerManager.Models.ServerTest do
-  alias Illithid.Models.Server
-
   use ExUnit.Case, async: true
+
+  alias Illithid.Constants.Hosts
+  alias Illithid.Models.Server
 
   describe "new/11" do
     test "Completes, correct data" do
@@ -14,7 +15,7 @@ defmodule Illithid.ServerManager.Models.ServerTest do
           "4gb",
           "2",
           "120gb",
-          :digital_ocean,
+          Hosts.digital_ocean(),
           "running",
           :running,
           "ianleeclark/base-image-001"
