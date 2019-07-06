@@ -5,8 +5,10 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
   use DynamicSupervisor
 
   alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
-  alias Illithid.ServerManager.DigitalOcean.Worker
+  alias Illithid.ServerManager.Worker
   alias Illithid.ServerManager.DigitalOcean.Regions
+
+  @worker_api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
   ###############################
   # DynamicSupervisor Callbacks #
@@ -26,7 +28,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   @spec create_server(ServerCreationContext.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def create_server(%ServerCreationContext{} = scc) do
-    child_spec = {Worker, {scc, choose_region()}}
+    child_spec = {Worker, {scc, choose_region(), @worker_api}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, child_pid} = retval ->
