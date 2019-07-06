@@ -5,7 +5,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
   """
 
   alias Jason
-  alias Illithid.ServerManager.Models
+  alias Illithid.Models
 
   require Logger
 

@@ -3,7 +3,7 @@ defmodule Illithid do
   Documentation for Illithid.
   """
 
-  alias Illithid.ServerManager.Models.ServerCreationContext
+  alias Illithid.Models.ServerCreationContext
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
 
   @doc """

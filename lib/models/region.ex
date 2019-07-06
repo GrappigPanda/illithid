@@ -1,4 +1,4 @@
-defmodule Illithid.ServerManager.Models.Region do
+defmodule Illithid.Models.Region do
   @moduledoc false
   @required_keys [:name, :slug, :available]
 

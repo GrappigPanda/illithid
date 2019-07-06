@@ -6,7 +6,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   @api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
-  alias Illithid.ServerManager.Models.{Region, Server, ServerCreationContext}
+  alias Illithid.Models.{Region, Server, ServerCreationContext}
 
   require Logger
 

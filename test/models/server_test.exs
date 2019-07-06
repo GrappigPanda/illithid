@@ -1,5 +1,5 @@
 defmodule Illithid.ServerManager.Models.ServerTest do
-  alias Illithid.ServerManager.Models.Server
+  alias Illithid.Models.Server
 
   use ExUnit.Case, async: true
 

@@ -1,4 +1,4 @@
-defmodule Illithid.ServerManager.Models.ServerCreationContext do
+defmodule Illithid.Models.ServerCreationContext do
   @moduledoc """
   Dictates how servers should be built
   """

@@ -1,7 +1,7 @@
 defmodule Illithid.ServerManager.Models.RegionTest do
   use ExUnit.Case, async: true
 
-  alias Illithid.ServerManager.Models.Region
+  alias Illithid.Models.Region
 
   describe "new/3" do
     test "Completes, correct data is persisted" do

@@ -2,7 +2,7 @@ defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
   alias Illithid.ServerManager.DigitalOcean.Supervisor
   alias Illithid.ServerManager.DigitalOcean.Worker
 
-  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
+  alias Illithid.Models.{Server, ServerCreationContext}
 
   use ExUnit.Case, async: false
 

@@ -69,6 +69,7 @@ defmodule Illithid.Timers.ServerlessWorkers do
 
     case Supervisor.destroy_server(pid) do
       {:ok, _} -> :ok
+      :ok -> :ok
       {:error, _} = retval -> retval
     end
   end

@@ -4,7 +4,7 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
 
   use DynamicSupervisor
 
-  alias Illithid.ServerManager.Models.{Server, ServerCreationContext}
+  alias Illithid.Models.{Server, ServerCreationContext}
   alias Illithid.ServerManager.DigitalOcean.Worker
   alias Illithid.ServerManager.DigitalOcean.Regions
 

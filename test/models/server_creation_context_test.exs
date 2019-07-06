@@ -1,5 +1,5 @@
 defmodule Illithid.ServerManager.Models.ServerCreationContextTest do
-  alias Illithid.ServerManager.Models.ServerCreationContext
+  alias Illithid.Models.ServerCreationContext
 
   use ExUnit.Case, async: true
 
