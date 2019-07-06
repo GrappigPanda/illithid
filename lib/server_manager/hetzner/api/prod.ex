@@ -13,7 +13,6 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
 
   @url "https://api.hetzner.cloud/v1/"
   @server_url @url <> "servers/"
-  @running_statuses ["running", "initializing", "starting", "migrating", "rebuilding"]
 
   @spec get_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(server_id) when is_bitstring(server_id) do
@@ -90,10 +89,8 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   end
 
   def destroy_server(%Server{id: server_id}) do
-    server_id_str = Integer.to_string(server_id)
-
-    with {:ok, server} <- get_server(server_id_str) do
-      case BaseAPI.delete(@server_url <> Integer.to_string(server_id), request_headers()) do
+    with {:ok, server} <- get_server(server_id) do
+      case BaseAPI.delete(@server_url <> server_id, request_headers()) do
         {:ok, %HTTPoison.Response{}} ->
           {:ok, server}
 
@@ -103,14 +100,14 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
     end
   end
 
-  @spec server_alive?(Server.t()) :: boolean
+  @spec server_alive?(Server.t()) :: boolean()
   def server_alive?(%Server{id: server_id}) do
-    case get_server(Integer.to_string(server_id)) do
-      {:ok, %Server{status: status}} ->
-        Enum.member?(@running_statuses, status)
+    case get_server(server_id) do
+      {:ok, %Server{}} ->
+        true
 
-      retval ->
-        retval
+      _retval ->
+        false
     end
   end
 
@@ -128,7 +125,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   @spec server_from_map(map()) :: Server.t()
   def server_from_map(%{} = server) do
     Server.new(
-      server["id"],
+      Integer.to_string(server["id"]),
       server["public_net"]["ipv4"]["ip"],
       server["name"],
       server["datacenter"]["location"]["name"],
