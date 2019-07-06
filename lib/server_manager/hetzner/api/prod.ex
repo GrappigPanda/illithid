@@ -5,6 +5,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   """
 
   alias Jason
+  alias Illithid.Constants.Hosts
   alias Illithid.Utils.BaseAPI
   alias Illithid.Models.Server
 
@@ -136,7 +137,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
       server["server_type"]["memory"],
       server["server_type"]["cpus"],
       server["server_type"]["disk"],
-      :hetzner,
+      Hosts.hetzner(),
       server["status"],
       # TODO(ian): Make a state machine and call state_machine.initial() instead
       :started,
