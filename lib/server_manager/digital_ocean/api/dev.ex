@@ -5,9 +5,68 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
   """
 
   alias Jason
-  alias Illithid.ServerManager.Models
+  alias Illithid.Models
 
   require Logger
+
+  @spec list_images(local_only :: bool()) :: {:ok, map()}
+  def list_images(_local_only \\ true) do
+    {:ok,
+     %{
+       "images" => [
+         %{
+           "created_at" => "2018-06-17T01:06:35Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_362_300,
+           "min_disk_size" => 25,
+           "name" => "docker-daemon-001",
+           "public" => false,
+           "regions" => ["nyc1"],
+           "size_gigabytes" => 2.07,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         },
+         %{
+           "created_at" => "2018-06-21T00:33:44Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_483_384,
+           "min_disk_size" => 25,
+           "name" => "docker-daemon-002",
+           "public" => false,
+           "regions" => ["nyc1"],
+           "size_gigabytes" => 2.75,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         },
+         %{
+           "created_at" => "2018-07-01T03:18:22Z",
+           "description" => nil,
+           "distribution" => "Ubuntu",
+           "error_message" => "",
+           "id" => 35_799_624,
+           "min_disk_size" => 25,
+           "name" => "base-docker-image",
+           "public" => false,
+           "regions" => ["nyc1", "nyc3"],
+           "size_gigabytes" => 2.94,
+           "slug" => nil,
+           "status" => "available",
+           "tags" => [],
+           "type" => "snapshot"
+         }
+       ],
+       "links" => %{},
+       "meta" => %{"total" => 3}
+     }}
+  end
 
   @spec get_server(server_id :: String.t()) :: {:ok, Models.Server.t()} | {:error, String.t()}
   def get_server(server_id) do
@@ -21,13 +80,13 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
   end
 
   @spec list_servers() :: {:ok, [Models.Server.t()]} | {:error, String.t()}
-  def list_servers(opts \\ [fail: false]) do
-    case Access.get(opts, :fail) do
+  def list_servers(ops \\ [fail: false]) do
+    case Access.get(ops, :fail) do
       true ->
-        {:ok, [mock_server(), mock_server()]}
+        {:error, "asdf"}
 
       _ ->
-        {:error, "Failed to list servers"}
+        {:ok, [mock_server(), mock_server()]}
     end
   end
 
@@ -76,18 +135,18 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
 
   @spec mock_server(server_name :: String.t()) :: Models.Server.t()
   defp mock_server(server_name \\ "test_name") do
-    %Models.Server{
-      id: "0",
-      ip: "127.0.0.1",
-      name: server_name,
-      region: "NYC",
-      memory: "4gb",
-      vcpus: "4",
-      disk: "100gb",
-      host: :digital_ocean,
-      status: "started",
-      state: :started,
-      image: "test/001"
-    }
+    Models.Server.new(
+      "0",
+      "127.0.0.1",
+      server_name,
+      "NYC",
+      "4gb",
+      "4",
+      "100gb",
+      :digital_ocean,
+      "started",
+      :started,
+      "test/001"
+    )
   end
 end

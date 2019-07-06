@@ -1,10 +1,12 @@
 defmodule Illithid.ServerManager do
   @moduledoc false
   use Supervisor
+  use Application
 
-  alias ServerManager.Timers.Orphans
+  alias Illithid.Timers.{Orphans, ServerlessWorkers}
+  alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
 
-  def start_link() do
+  def start(_type, _args) do
     start_link([])
   end
 
@@ -15,7 +17,8 @@ defmodule Illithid.ServerManager do
   def init(_arg) do
     children = [
       {DOSupervisor, []},
-      {Orphans, []}
+      {Orphans, []},
+      {ServerlessWorkers, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

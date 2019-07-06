@@ -1,7 +1,7 @@
 defmodule Illithid.ServerManager.RegionBehaviour do
   @moduledoc false
 
-  alias Illithid.ServerManager.Models.Region
+  alias Illithid.Models.Region
 
   @callback all_regions() :: [Region.t()]
   @callback all_available_regions() :: [Region.t()]
