@@ -112,7 +112,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
   end
 
   @spec list_images(list_local :: bool()) :: {:ok, map()} | {:error, atom()}
-  def list_images(list_local \\ false) do
+  def list_images(list_local \\ true) do
     uri =
       case list_local do
         true -> "images?private=true"

@@ -20,21 +20,21 @@ defmodule Illithid.ServerManager.DigitalOcean.Worker do
 
   def start_link({%ServerCreationContext{server_id: server_id, image: image}, region}) do
     with {:ok, servers} <- @api.list_servers(),
-         {:ok, images} <- @api.list_images() do
-      image_id =
-        images
-        |> Map.get("images")
-        |> Enum.find(fn
-          %{"name" => ^image} -> true
-          _ -> false
-        end)
-        |> Map.get("id")
-
+         {:ok, images} <- @api.list_images(true) do
       server = Enum.find(servers, fn server -> server.name == server_id end)
 
       if server != nil do
         # TODO(ian): Determine if server is already running. If so, log it and create this genserver with that in the Server
       else
+        image_id =
+          images
+          |> Map.get("images")
+          |> Enum.find(fn
+            %{"name" => ^image} -> true
+            _ -> false
+          end)
+          |> Map.get("id")
+
         create_server(server_id, region, image_id)
       end
     end

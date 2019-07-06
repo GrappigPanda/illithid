@@ -9,8 +9,8 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
 
   require Logger
 
-  @spec list_images(local_only :: bool()) :: map()
-  def list_images(_local_only \\ false) do
+  @spec list_images(local_only :: bool()) :: {:ok, map()}
+  def list_images(_local_only \\ true) do
     {:ok,
      %{
        "images" => [
