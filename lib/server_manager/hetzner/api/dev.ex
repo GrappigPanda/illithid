@@ -1,11 +1,10 @@
-defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
+defmodule Illithid.ServerManager.Hetzner.API.Dev do
   @behaviour Illithid.ServerManager.HostAPIBehaviour
   @moduledoc """
   The production API handler
   """
 
   alias Jason
-  alias Illithid.Constants.Hosts
   alias Illithid.Models
 
   require Logger
@@ -144,7 +143,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
       "4gb",
       "4",
       "100gb",
-      Hosts.digital_ocean(),
+      :digital_ocean,
       "started",
       :started,
       "test/001"

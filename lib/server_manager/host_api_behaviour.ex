@@ -10,5 +10,6 @@ defmodule Illithid.ServerManager.HostAPIBehaviour do
   @callback list_servers() :: {:ok, [Server.t()]} | {:error, String.t()}
   @callback list_images(bool) :: {:ok, map()} | {:error, atom()}
   @callback create_server(ServerCreationContext.t()) :: {:ok, Server.t()} | {:error, String.t()}
-  @callback destroy_server(Server.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  @callback destroy_server(String.t() | Server.t()) :: {:ok, Server.t()} | {:error, String.t()}
+  @callback server_alive?(Server.t()) :: boolean()
 end

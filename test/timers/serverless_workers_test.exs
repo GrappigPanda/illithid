@@ -1,6 +1,7 @@
 defmodule Illithid.Timers.ServerlessWorkersTest do
   use ExUnit.Case, async: false
 
+  alias Illithid.Constants.Hosts
   alias Illithid.Timers.ServerlessWorkers
   alias Illithid.Models.ServerCreationContext
   alias Illithid.ServerManager.DigitalOcean.Supervisor
@@ -8,7 +9,7 @@ defmodule Illithid.Timers.ServerlessWorkersTest do
   setup_all do
     scc =
       ServerCreationContext.new(
-        :digital_ocean,
+        Hosts.digital_ocean(),
         "orphaned_server",
         "base-docker-image"
       )

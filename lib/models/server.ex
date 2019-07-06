@@ -28,7 +28,7 @@ defmodule Illithid.Models.Server do
           memory: String.t(),
           vcpus: String.t(),
           disk: String.t(),
-          host: :digital_ocean,
+          host: atom(),
           status: String.t(),
           state: atom(),
           image: String.t()

@@ -5,8 +5,9 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
   """
 
   alias Jason
-  alias Illithid.Utils.BaseAPI
+  alias Illithid.Constants.Hosts
   alias Illithid.Models
+  alias Illithid.Utils.BaseAPI
 
   require Logger
 
@@ -178,7 +179,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
       memory,
       vcpus,
       disk,
-      :digital_ocean,
+      Hosts.digital_ocean(),
       # TODO(ian): Maybe incorrect status
       status,
       :started,

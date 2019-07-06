@@ -1,10 +1,10 @@
 defmodule Illithid.ServerManager.WorkerTest do
+  use ExUnit.Case, async: false
+
+  alias Illithid.Constants.Hosts
+  alias Illithid.Models.{Server, ServerCreationContext}
   alias Illithid.ServerManager.DigitalOcean.Supervisor
   alias Illithid.ServerManager.Worker
-
-  alias Illithid.Models.{Server, ServerCreationContext}
-
-  use ExUnit.Case, async: false
 
   setup_all do
     server =
@@ -16,7 +16,7 @@ defmodule Illithid.ServerManager.WorkerTest do
         "4gb",
         "4",
         "100gb",
-        :digital_ocean,
+        Hosts.digital_ocean(),
         "started",
         :started,
         "test/001"
