@@ -12,6 +12,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
 
   @url "https://api.hetzner.cloud/v1/"
   @server_url @url <> "servers/"
+  @running_statuses ["running", "initializing", "starting", "migrating", "rebuilding"]
 
   @spec get_server(server_id :: String.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def get_server(server_id) when is_bitstring(server_id) do
@@ -107,7 +108,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   def server_alive?(%Server{name: server_name}) do
     case get_server(server_name) do
       {:ok, %Server{status: status}} ->
-        Enum.member?(["running", "initializing", "starting", "migrating", "rebuilding"], status)
+        Enum.member?(@running_statuses, status)
 
       retval ->
         retval
