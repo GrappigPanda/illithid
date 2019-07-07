@@ -5,6 +5,7 @@ defmodule Illithid.ServerManager do
 
   alias Illithid.Timers.{Orphans, ServerlessWorkers}
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
+  alias Illithid.ServerManager.Hetzner.Supervisor, as: HetznerSupervisor
 
   def start(_type, _args) do
     start_link([])
@@ -15,12 +16,28 @@ defmodule Illithid.ServerManager do
   end
 
   def init(_arg) do
-    children = [
+    children =
+      case Application.get_env(:illithid, :runtime_env) do
+        :dev ->
+          all_children()
+
+        :test ->
+          []
+
+        :prod ->
+          all_children()
+      end
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  @spec all_children() :: [{module(), list()}]
+  def all_children do
+    [
       {DOSupervisor, []},
+      {HetznerSupervisor, []},
       {Orphans, []},
       {ServerlessWorkers, []}
     ]
-
-    Supervisor.init(children, strategy: :one_for_one)
   end
 end

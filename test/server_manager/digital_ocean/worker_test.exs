@@ -1,4 +1,4 @@
-defmodule Illithid.ServerManager.WorkerTest do
+defmodule Illithid.ServerManager.DigitalOcean.WorkerTest do
   use ExUnit.Case, async: false
 
   alias Illithid.Constants.Hosts
@@ -28,6 +28,8 @@ defmodule Illithid.ServerManager.WorkerTest do
         server.id,
         "base-docker-image"
       )
+
+    {:ok, _} = start_supervised(Supervisor)
 
     {:ok, pid} = Supervisor.create_server(scc)
     {:ok, pid_delete} = Supervisor.create_server(Map.put(scc, :server_id, "delete-me"))
