@@ -3,9 +3,13 @@ defmodule Illithid.ServerManager do
   use Supervisor
   use Application
 
-  alias Illithid.Timers.{Orphans, ServerlessWorkers}
+  alias Illithid.Constants.Hosts
+  alias Illithid.Timers.{OrphanedServers, ServerlessWorkers}
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
   alias Illithid.ServerManager.Hetzner.Supervisor, as: HetznerSupervisor
+
+  @digital_ocean_api Application.get_env(:illithid, :digital_ocean)[:api_module]
+  @hetzner_api Application.get_env(:illithid, :hetzner)[:api_module]
 
   def start(_type, _args) do
     start_link([])
@@ -36,8 +40,18 @@ defmodule Illithid.ServerManager do
     [
       {DOSupervisor, []},
       {HetznerSupervisor, []},
-      {Orphans, []},
-      {ServerlessWorkers, []}
+      Supervisor.child_spec({ServerlessWorkers, [@digital_ocean_api]},
+        id: Atom.to_string(Hosts.digital_ocean()) <> "-serverless-workers"
+      ),
+      Supervisor.child_spec({ServerlessWorkers, [@hetzner_api]},
+        id: Atom.to_string(Hosts.hetzner()) <> "-serverless-workers"
+      ),
+      Supervisor.child_spec({OrphanedServers, [@digital_ocean_api]},
+        id: Atom.to_string(Hosts.digital_ocean()) <> "-orphaned-servers"
+      ),
+      Supervisor.child_spec({OrphanedServers, [@hetzner_api]},
+        id: Atom.to_string(Hosts.hetzner()) <> "-orphaned-servers"
+      )
     ]
   end
 end
