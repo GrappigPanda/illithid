@@ -5,6 +5,7 @@ defmodule Illithid.ServerManager do
 
   alias Illithid.Timers.{Orphans, ServerlessWorkers}
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
+  alias Illithid.ServerManager.Hetzner.Supervisor, as: HetznerSupervisor
 
   def start(_type, _args) do
     start_link([])
@@ -15,11 +16,17 @@ defmodule Illithid.ServerManager do
   end
 
   def init(_arg) do
-    children = [
-      {DOSupervisor, []},
-      {Orphans, []},
-      {ServerlessWorkers, []}
-    ]
+    children =
+      if Mix.env() == :test do
+        []
+      else
+        [
+          {DOSupervisor, []},
+          {HetznerSupervisor, []},
+          {Orphans, []},
+          {ServerlessWorkers, []}
+        ]
+      end
 
     Supervisor.init(children, strategy: :one_for_one)
   end

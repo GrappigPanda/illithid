@@ -14,6 +14,9 @@ defmodule Illithid.Timers.ServerlessWorkersTest do
         "base-docker-image"
       )
 
+    {:ok, _} = start_supervised(ServerlessWorkers)
+    {:ok, _} = start_supervised(Supervisor)
+
     {:ok, pid} = Supervisor.create_server(scc)
 
     %{pid: pid}
