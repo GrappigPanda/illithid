@@ -17,17 +17,27 @@ defmodule Illithid.ServerManager do
 
   def init(_arg) do
     children =
-      if Mix.env() == :test do
-        []
-      else
-        [
-          {DOSupervisor, []},
-          {HetznerSupervisor, []},
-          {Orphans, []},
-          {ServerlessWorkers, []}
-        ]
+      case Application.get_env(:illithid, :runtime_env) do
+        :dev ->
+          all_children()
+
+        :test ->
+          []
+
+        :prod ->
+          all_children()
       end
 
     Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  @spec all_children() :: [{module(), list()}]
+  def all_children do
+    [
+      {DOSupervisor, []},
+      {HetznerSupervisor, []},
+      {Orphans, []},
+      {ServerlessWorkers, []}
+    ]
   end
 end
