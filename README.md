@@ -1,11 +1,15 @@
 # Illithid
 
-**TODO: Add description**
+In short, Illithid aims to allow you to programatically control server infrastructure.
+
+So, each server you create will have a corresponding pid/Genserver which you can directly interact with.
+
+
+## How to use
+
+TODO(ian): Add some more info when the API is a little more fleshed out
 
 ## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `illithid` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,16 +19,14 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/illithid](https://hexdocs.pm/illithid).
+## Remaining Work
 
+### High Priority
+- [ ] Jitter and backoff to requests
+- [ ] Worker self updater (See: [https://github.com/Ianleeclark/illithid/issues/11](Issue #11))
 
+### Low Priority
+- [ ] Add AWS (EC2) support
+- [ ] Add Google Cloud (Compute Engine) support
+- [ ] Add corresponding Azure support
 
-Tasks:
-  - [] 
-  - []
-  - []
-  - []
-  - []
-  - []
