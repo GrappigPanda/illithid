@@ -40,6 +40,7 @@ defmodule Illithid.ServerManager do
     [
       {DOSupervisor, []},
       {HetznerSupervisor, []},
+      # TODO(ian): Only start these if DO or hetzner is configured to run
       Supervisor.child_spec({ServerlessWorkers, [@digital_ocean_api]},
         id: Atom.to_string(Hosts.digital_ocean()) <> "-serverless-workers"
       ),

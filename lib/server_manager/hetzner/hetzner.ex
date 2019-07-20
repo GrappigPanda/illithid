@@ -8,7 +8,7 @@ defmodule Illithid.ServerManager.Hetzner.Supervisor do
   alias Illithid.ServerManager.Worker
   alias Illithid.ServerManager.Hetzner.Regions
 
-  @worker_api Application.get_env(:illithid, :illithid)[:api_module]
+  @worker_api Application.get_env(:illithid, :hetzner)[:api_module]
 
   ###############################
   # DynamicSupervisor Callbacks #
