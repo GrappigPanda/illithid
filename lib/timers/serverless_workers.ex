@@ -5,8 +5,6 @@ defmodule Illithid.Timers.ServerlessWorkers do
   """
   use GenServer, restart: :transient
 
-  @api Application.get_env(:illithid, :digital_ocean)[:api_module]
-
   alias Illithid.ServerManager.DigitalOcean.Supervisor
   alias Illithid.ServerManager.Worker
 
@@ -16,22 +14,28 @@ defmodule Illithid.Timers.ServerlessWorkers do
   # GenServer Callbacks #
   #######################
 
-  def start_link(_args) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link([api]) do
+    GenServer.start_link(__MODULE__, [api])
   end
 
-  def init(_args) do
+  def init([api]) do
+    state = %{api: api}
     # TODO(ian): Magic number
-    Process.send_after(self(), :kill_orphans, 1000 * 5)
-    {:ok, %{}}
+    Process.send_after(self(), {:kill_orphans, state}, 1000 * 5)
+    {:ok, state}
   end
 
   ################
   # Handle Calls #
   ################
+  def handle_info({:kill_orphans, %{api: api} = state}, _state) do
+    for server <- find_serverless_workers(api), do: kill_orphan(server)
 
-  def handle_info(:kill_orphans, state) do
-    for server <- find_serverless_workers(), do: kill_orphan(server)
+    {:noreply, state}
+  end
+
+  def handle_info(:kill_orphans, %{api: api} = state) do
+    for server <- find_serverless_workers(api), do: kill_orphan(server)
 
     {:noreply, state}
   end
@@ -40,9 +44,9 @@ defmodule Illithid.Timers.ServerlessWorkers do
   # Internal Functions #
   ######################
 
-  @spec find_serverless_workers() :: [{pid, String.t()}]
-  defp find_serverless_workers do
-    case @api.list_servers() do
+  @spec find_serverless_workers(api :: module()) :: [{pid, String.t()}]
+  defp find_serverless_workers(api) do
+    case api.list_servers() do
       {:ok, servers} ->
         server_names = Enum.map(servers, fn s -> s.name end)
 

@@ -4,7 +4,9 @@ defmodule Illithid.Timers.ServerlessWorkersTest do
   alias Illithid.Constants.Hosts
   alias Illithid.Timers.ServerlessWorkers
   alias Illithid.Models.ServerCreationContext
-  alias Illithid.ServerManager.DigitalOcean.Supervisor
+  alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
+
+  @digital_ocean_api Application.get_env(:illithid, :digital_ocean)[:api_module]
 
   setup_all do
     scc =
@@ -14,19 +16,20 @@ defmodule Illithid.Timers.ServerlessWorkersTest do
         "base-docker-image"
       )
 
-    {:ok, _} = start_supervised(ServerlessWorkers)
-    {:ok, _} = start_supervised(Supervisor)
+    {:ok, serverless_pid} = start_supervised({ServerlessWorkers, [@digital_ocean_api]})
 
-    {:ok, pid} = Supervisor.create_server(scc)
+    {:ok, _} = start_supervised({DOSupervisor, [@digital_ocean_api]})
 
-    %{pid: pid}
+    {:ok, pid} = DOSupervisor.create_server(scc)
+
+    %{pid: pid, serverless_pid: serverless_pid}
   end
 
   describe "Kills orphaned servers" do
-    test "Correctly kills orphaned servers", %{pid: pid} do
+    test "Correctly kills orphaned servers", %{pid: pid, serverless_pid: s_pid} do
       assert Process.alive?(pid)
 
-      Process.send(Process.whereis(ServerlessWorkers), :kill_orphans, [])
+      Process.send(s_pid, :kill_orphans, [])
       :timer.sleep(1_000)
 
       refute Process.alive?(pid)

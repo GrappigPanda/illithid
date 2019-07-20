@@ -11,7 +11,7 @@ defmodule Illithid.ServerManager.Worker do
   # GenServer Callbacks #
   #######################
 
-  def start_link([], {_, _, _} = args) do
+  def start_link([], {_server_creation_context, _region, _api} = args) do
     start_link(args)
   end
 
