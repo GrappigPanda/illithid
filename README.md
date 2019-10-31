@@ -2,7 +2,7 @@
 
 In short, Illithid aims to allow you to programatically control server infrastructure.
 
-So, each server you create will have a corresponding pid/Genserver which you can directly interact with.
+So, each server you create will have a corresponding pid/Genserver which you can directly interact with to spawn/destroy that server.
 
 
 ## How to use
