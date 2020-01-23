@@ -7,7 +7,7 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
   alias Jason
   alias Illithid.Constants.Hosts
   alias Illithid.Utils.BaseAPI
-  alias Illithid.Models.Server
+  alias Illithid.Models.{Region, Server}
 
   require Logger
 
@@ -122,8 +122,29 @@ defmodule Illithid.ServerManager.Hetzner.API.Prod do
     end
   end
 
+  @spec list_locations() :: {:ok, [Region.t()]} | {:error, String.t()}
+  def list_locations do
+    case BaseAPI.get(@url <> "locations", request_headers()) do
+      {:ok, %HTTPoison.Response{body: response}} ->
+        decoded_regions =
+          response
+          |> Jason.decode!()
+
+        regions =
+          decoded_regions["locations"]
+          |> Enum.map(fn %{"name" => name} ->
+            Region.new(name, name, true)
+          end)
+
+        {:ok, regions}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, reason}
+    end
+  end
+
   @spec server_from_map(map()) :: Server.t()
-  def server_from_map(%{} = server) do
+  defp server_from_map(%{} = server) do
     Server.new(
       Integer.to_string(server["id"]),
       server["public_net"]["ipv4"]["ip"],

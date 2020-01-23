@@ -7,6 +7,7 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
   alias Jason
   alias Illithid.Constants.Hosts
   alias Illithid.Models
+  alias Illithid.Models.Region
   alias Illithid.Utils.BaseAPI
 
   require Logger
@@ -45,6 +46,27 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Prod do
 
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("Failed to get digital ocean servers because #{reason}")
+        {:error, reason}
+    end
+  end
+
+  @spec list_locations() :: {:ok, [Region.t()]} | {:error, String.t()}
+  def list_locations do
+    case BaseAPI.get(@url <> "regions", request_headers()) do
+      {:ok, %HTTPoison.Response{body: response}} ->
+        decoded_regions =
+          response
+          |> Jason.decode!()
+
+        regions =
+          decoded_regions["regions"]
+          |> Enum.map(fn %{"name" => name, "slug" => slug, "available" => available} ->
+            Region.new(name, slug, available)
+          end)
+
+        {:ok, regions}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, reason}
     end
   end
