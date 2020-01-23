@@ -8,8 +8,10 @@ defmodule Illithid.ServerManager do
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
   alias Illithid.ServerManager.Hetzner.Supervisor, as: HetznerSupervisor
 
-  @digital_ocean_api Application.get_env(:illithid, :digital_ocean)[:api_module]
-  @hetzner_api Application.get_env(:illithid, :hetzner)[:api_module]
+  @digital_ocean_api Application.get_env(:illithid, Hosts.digital_ocean())[:api_module]
+  @hetzner_api Application.get_env(:illithid, Hosts.hetzner())[:api_module]
+
+  @hosts_to_api %{Hosts.digital_ocean() => @digital_ocean_api, Hosts.hetzner() => @hetzner_api}
 
   def start(_type, _args) do
     start_link([])
@@ -39,20 +41,30 @@ defmodule Illithid.ServerManager do
   def all_children do
     [
       {DOSupervisor, []},
-      {HetznerSupervisor, []},
-      # TODO(ian): Only start these if DO or hetzner is configured to run
-      Supervisor.child_spec({ServerlessWorkers, [@digital_ocean_api]},
-        id: Atom.to_string(Hosts.digital_ocean()) <> "-serverless-workers"
-      ),
-      Supervisor.child_spec({ServerlessWorkers, [@hetzner_api]},
-        id: Atom.to_string(Hosts.hetzner()) <> "-serverless-workers"
-      ),
-      Supervisor.child_spec({OrphanedServers, [@digital_ocean_api]},
-        id: Atom.to_string(Hosts.digital_ocean()) <> "-orphaned-servers"
-      ),
-      Supervisor.child_spec({OrphanedServers, [@hetzner_api]},
-        id: Atom.to_string(Hosts.hetzner()) <> "-orphaned-servers"
-      )
-    ]
+      {HetznerSupervisor, []}
+    ] ++ filter_supervisors_for_active_hosts()
+  end
+
+  @spec filter_supervisors_for_active_hosts() :: [any()]
+  defp filter_supervisors_for_active_hosts do
+    Hosts.all_hosts()
+    |> Enum.flat_map(fn host when is_atom(host) ->
+      case Application.get_env(:illithid, host)[:auth_token] do
+        token when is_binary(token) ->
+          api = @hosts_to_api[host]
+
+          [
+            Supervisor.child_spec({ServerlessWorkers, [api]},
+              id: Atom.to_string(host) <> "-serverless-workers"
+            ),
+            Supervisor.child_spec({OrphanedServers, [api]},
+              id: Atom.to_string(host) <> "-orphaned-servers"
+            )
+          ]
+
+        _ ->
+          []
+      end
+    end)
   end
 end
