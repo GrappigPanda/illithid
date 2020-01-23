@@ -26,6 +26,7 @@ defmodule Illithid.ServerManager.Hetzner.WorkerTest do
       ServerCreationContext.new(
         server.host,
         server.id,
+        "nyc1",
         "base-docker-image"
       )
 

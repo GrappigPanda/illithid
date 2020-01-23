@@ -14,6 +14,12 @@ defmodule Illithid.Constants.Hosts do
 
   @type t :: [atom()]
 
+  ########
+  # APIs #
+  ########
+  @digital_ocean_api Application.get_env(:illithid, @digital_ocean)[:api_module]
+  @hetzner_api Application.get_env(:illithid, @hetzner)[:api_module]
+
   ####################
   # Public Functions #
   ####################
@@ -26,6 +32,15 @@ defmodule Illithid.Constants.Hosts do
 
   @spec hetzner() :: :hetzner
   def hetzner, do: @hetzner
+
+  @spec api_for_host(host :: atom()) :: module()
+  def api_for_host(@hetzner) do
+    @hetzner_api
+  end
+
+  def api_for_host(@digital_ocean) do
+    @digital_ocean_api
+  end
 
   @spec resolve_supervisor_from_host(host :: atom()) :: {:ok, module()}
   def resolve_supervisor_from_host(host) when is_atom(host) do

@@ -6,7 +6,6 @@ defmodule Illithid.ServerManager.Hetzner.Supervisor do
 
   alias Illithid.Models.{Server, ServerCreationContext}
   alias Illithid.ServerManager.Worker
-  alias Illithid.ServerManager.Hetzner.Regions
 
   @worker_api Application.get_env(:illithid, :hetzner)[:api_module]
 
@@ -28,7 +27,7 @@ defmodule Illithid.ServerManager.Hetzner.Supervisor do
 
   @spec create_server(ServerCreationContext.t()) :: {:ok, Server.t()} | {:error, String.t()}
   def create_server(%ServerCreationContext{} = scc) do
-    child_spec = {Worker, {scc, choose_region(), @worker_api}}
+    child_spec = {Worker, {scc, scc.region, @worker_api}}
 
     case DynamicSupervisor.start_child(__MODULE__, child_spec) do
       {:ok, child_pid} = retval ->
@@ -103,16 +102,5 @@ defmodule Illithid.ServerManager.Hetzner.Supervisor do
     Enum.into(children(), %{}, fn {_, pid, _, _} ->
       {Worker.get_server_name(pid), pid}
     end)
-  end
-
-  ###########################
-  # Private Utility Methods #
-  ###########################
-
-  @spec choose_region() :: String.t()
-  defp choose_region() do
-    # TODO(ian): Do this a little better
-    Regions.all_available_regions()
-    |> hd()
   end
 end

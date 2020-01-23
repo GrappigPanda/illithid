@@ -13,6 +13,7 @@ defmodule Illithid.Timers.ServerlessWorkersTest do
       ServerCreationContext.new(
         Hosts.digital_ocean(),
         "orphaned_server",
+        "nyc1",
         "base-docker-image"
       )
 

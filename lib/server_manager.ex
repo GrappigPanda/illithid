@@ -8,8 +8,8 @@ defmodule Illithid.ServerManager do
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor
   alias Illithid.ServerManager.Hetzner.Supervisor, as: HetznerSupervisor
 
-  @digital_ocean_api Application.get_env(:illithid, Hosts.digital_ocean())[:api_module]
-  @hetzner_api Application.get_env(:illithid, Hosts.hetzner())[:api_module]
+  @digital_ocean_api Hosts.api_for_host(Hosts.digital_ocean())
+  @hetzner_api Hosts.api_for_host(Hosts.hetzner())
 
   @hosts_to_api %{Hosts.digital_ocean() => @digital_ocean_api, Hosts.hetzner() => @hetzner_api}
 
