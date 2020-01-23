@@ -25,7 +25,8 @@ defmodule Illithid do
   defp valid_region?(region, host) when is_binary(region) and is_atom(host) do
     api = Hosts.api_for_host(host)
 
-    case api.list_locations() do
+    api.list_locations()
+    |> case do
       {:ok, regions} ->
         regions
         |> Enum.map(fn %Region{slug: slug} -> slug end)
