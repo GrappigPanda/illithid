@@ -10,6 +10,26 @@ defmodule Illithid.ServerManager.DigitalOcean.API.Dev do
 
   require Logger
 
+  @spec list_locations() :: {:ok, [Models.Region.t()]}
+  def list_locations do
+    {:ok,
+     [
+       %Illithid.Models.Region{available: true, name: "New York 1", slug: "nyc1"},
+       %Illithid.Models.Region{available: true, name: "Singapore 1", slug: "sgp1"},
+       %Illithid.Models.Region{available: true, name: "London 1", slug: "lon1"},
+       %Illithid.Models.Region{available: true, name: "New York 3", slug: "nyc3"},
+       %Illithid.Models.Region{available: true, name: "Amsterdam 3", slug: "ams3"},
+       %Illithid.Models.Region{available: true, name: "Frankfurt 1", slug: "fra1"},
+       %Illithid.Models.Region{available: true, name: "Toronto 1", slug: "tor1"},
+       %Illithid.Models.Region{
+         available: true,
+         name: "San Francisco 2",
+         slug: "sfo2"
+       },
+       %Illithid.Models.Region{available: true, name: "Bangalore 1", slug: "blr1"}
+     ]}
+  end
+
   @spec list_images(local_only :: bool()) :: {:ok, map()}
   def list_images(_local_only \\ true) do
     {:ok,

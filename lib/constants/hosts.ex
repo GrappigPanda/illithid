@@ -1,5 +1,4 @@
 defmodule Illithid.Constants.Hosts do
-  # TODO(ian): Write this in
   @moduledoc false
 
   alias Illithid.ServerManager.DigitalOcean.Supervisor, as: DOSupervisor

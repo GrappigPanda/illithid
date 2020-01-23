@@ -9,6 +9,16 @@ defmodule Illithid.ServerManager.Hetzner.API.Dev do
 
   require Logger
 
+  @spec list_locations() :: {:ok, [Models.Region.t()]}
+  def list_locations do
+    {:ok,
+     [
+       %Illithid.Models.Region{available: true, name: "fsn1", slug: "fsn1"},
+       %Illithid.Models.Region{available: true, name: "nbg1", slug: "nbg1"},
+       %Illithid.Models.Region{available: true, name: "hel1", slug: "hel1"}
+     ]}
+  end
+
   @spec list_images(local_only :: bool()) :: {:ok, map()}
   def list_images(_local_only \\ true) do
     {:ok,
