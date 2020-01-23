@@ -1,10 +1,10 @@
 defmodule Illithid.Timers.ServerlessWorkers do
-  # TODO(ian): Update when configurable
   @moduledoc """
   Kills worker processes who have no correlated running server
   """
   use GenServer, restart: :transient
 
+  alias Illithid.Constants.Servers, as: ServerConstants
   alias Illithid.ServerManager.DigitalOcean.Supervisor
   alias Illithid.ServerManager.Worker
 
@@ -20,8 +20,13 @@ defmodule Illithid.Timers.ServerlessWorkers do
 
   def init([api]) do
     state = %{api: api}
-    # TODO(ian): Magic number
-    Process.send_after(self(), {:kill_orphans, state}, 1000 * 5)
+
+    Process.send_after(
+      self(),
+      {:kill_orphans, state},
+      ServerConstants.background_worker_call_intensity()
+    )
+
     {:ok, state}
   end
 

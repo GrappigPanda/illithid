@@ -35,9 +35,8 @@ defmodule Illithid.ServerManager.DigitalOcean.Supervisor do
         GenServer.call(child_pid, :check_server_status)
         retval
 
-      {:error, error_reason} ->
-        # TODO(ian): Do something about below error
-        {:error, inspect(error_reason)}
+      {:error, _error_reason} = error ->
+        error
     end
   end
 

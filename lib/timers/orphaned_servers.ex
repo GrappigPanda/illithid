@@ -1,10 +1,10 @@
 defmodule Illithid.Timers.OrphanedServers do
-  # TODO(ian): Update when update configurable runtime
   @moduledoc """
   Handles killing orphaned child processes.
   """
   use GenServer, restart: :transient
 
+  alias Illithid.Constants.Servers, as: ServerConstants
   alias Illithid.ServerManager.DigitalOcean.Supervisor
 
   require Logger
@@ -18,9 +18,14 @@ defmodule Illithid.Timers.OrphanedServers do
   end
 
   def init([api]) do
-    # TODO(ian): Configurable
     state = %{api: api}
-    Process.send_after(self(), {:kill_orphans, state}, 1000 * 5)
+
+    Process.send_after(
+      self(),
+      {:kill_orphans, state},
+      ServerConstants.background_worker_call_intensity()
+    )
+
     {:ok, state}
   end
 
