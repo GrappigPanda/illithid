@@ -34,18 +34,6 @@ defmodule Illithid.Models.Server do
           image: String.t()
         }
 
-  # TODO(ian): Change to `new()`
-  @doc false
-  def changeset(server, attrs) do
-    cast(server, attrs, @required_keys)
-  end
-
-  defp cast(%__MODULE__{} = server, attributes, keys) do
-    Enum.map(keys, fn key ->
-      Map.put(server, key, Map.get(attributes, key))
-    end)
-  end
-
   @spec new(
           id :: String.t(),
           ip :: String.t(),
