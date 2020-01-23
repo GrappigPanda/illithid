@@ -117,9 +117,6 @@ defmodule Illithid.ServerManager.Worker do
           worker_api :: module()
         ) :: {:ok, Server.t()} | {:error, String.t()}
   defp create_server(server_name, region_slug, image, worker_api) do
-    # TODO(ian): Don't convert this to an atom, is pretty dumb
-    name_atom = String.to_atom(server_name)
-
     # TODO(ian): This should re-use the ServerContext mentioned somewhere above
     new_server_request = %{
       "name" => server_name,
@@ -134,7 +131,7 @@ defmodule Illithid.ServerManager.Worker do
       GenServer.start_link(
         __MODULE__,
         [server, server_name, worker_api],
-        name: name_atom
+        name: {:global, server_name}
       )
     else
       {:error, _reason} = retval -> retval
