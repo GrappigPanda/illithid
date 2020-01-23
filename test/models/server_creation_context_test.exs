@@ -6,7 +6,8 @@ defmodule Illithid.ServerManager.Models.ServerCreationContextTest do
 
   describe "new/2" do
     test "Correct data, creates" do
-      scc = ServerCreationContext.new(Hosts.digital_ocean(), "Foobar", "base-docker-image")
+      scc =
+        ServerCreationContext.new(Hosts.digital_ocean(), "Foobar", "nyc1", "base-docker-image")
 
       assert scc.host == Hosts.digital_ocean()
       assert scc.server_id == "Foobar"

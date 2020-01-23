@@ -3,7 +3,7 @@ defmodule Illithid.ServerManager.Worker do
 
   use GenServer, restart: :transient
 
-  alias Illithid.Models.{Region, Server, ServerCreationContext}
+  alias Illithid.Models.{Server, ServerCreationContext}
 
   require Logger
 
@@ -110,9 +110,13 @@ defmodule Illithid.ServerManager.Worker do
   # Misc Calls #
   ##############
 
-  @spec create_server(String.t(), Region.t(), image :: String.t(), worker_api :: module()) ::
-          {:ok, Server.t()} | {:error, String.t()}
-  defp create_server(server_name, %Region{slug: region_slug}, image, worker_api) do
+  @spec create_server(
+          server_name :: String.t(),
+          region_slug :: String.t(),
+          image :: String.t(),
+          worker_api :: module()
+        ) :: {:ok, Server.t()} | {:error, String.t()}
+  defp create_server(server_name, region_slug, image, worker_api) do
     # TODO(ian): Don't convert this to an atom, is pretty dumb
     name_atom = String.to_atom(server_name)
 
