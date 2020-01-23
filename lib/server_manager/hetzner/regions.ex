@@ -13,7 +13,7 @@ defmodule Illithid.ServerManager.Hetzner.Regions do
 
   def all_regions do
     case @api.list_locations() do
-      {:ok, regions} -> regions
+      {:ok, regions} when is_list(regions) -> regions
       error -> error
     end
   end
